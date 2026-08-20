@@ -1,0 +1,37 @@
+resources:
+  jobs:
+    Ecommerce_Job:
+      name: Ecommerce_Job
+      trigger:
+        pause_status: UNPAUSED
+        file_arrival:
+          url: /Volumes/ecommerce_catalog_dev/bronze/raw_data_volume/ecommerce_transactions/
+      tasks:
+        - task_key: ecommerce_bronze_include
+          notebook_task:
+            notebook_path: /Workspace/ecommerce-medallion-pipeline/ecommerce-medallion-pipeline/ecommerce_lakehouse_etl/src/bronze/include
+            source: WORKSPACE
+        - task_key: ecommerce_bronze_ingestion
+          depends_on:
+            - task_key: ecommerce_bronze_include
+          notebook_task:
+            notebook_path: /Workspace/ecommerce-medallion-pipeline/ecommerce-medallion-pipeline/ecommerce_lakehouse_etl/src/bronze/ingestion
+            source: WORKSPACE
+        - task_key: ecommerce_silver_cleaning
+          depends_on:
+            - task_key: ecommerce_bronze_ingestion
+          notebook_task:
+            notebook_path: /Workspace/ecommerce-medallion-pipeline/ecommerce-medallion-pipeline/ecommerce_lakehouse_etl/src/silver/silver_cleaning
+            source: WORKSPACE
+        - task_key: ecommerce_gold_kpi
+          depends_on:
+            - task_key: ecommerce_silver_cleaning
+          notebook_task:
+            notebook_path: /Workspace/ecommerce-medallion-pipeline/ecommerce-medallion-pipeline/ecommerce_lakehouse_etl/src/gold/gold_kpis
+            source: WORKSPACE
+      queue:
+        enabled: true
+      parameters:
+        - name: catalog
+          default: ${var.catalog}
+      performance_target: PERFORMANCE_OPTIMIZED
