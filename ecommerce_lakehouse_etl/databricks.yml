@@ -16,11 +16,9 @@ artifacts:
 variables:
   catalog:
     description: The catalog to use
-  schema:
-    description: The schema to use
 
 targets:
-  dev:
+  ecommerce_catalog_dev:
     # The default target uses 'mode: development' to create a development copy.
     # - Deployed resources get prefixed with '[dev my_user_name]'
     # - Any job schedules and triggers are paused by default.
@@ -30,17 +28,26 @@ targets:
     workspace:
       host: https://dbc-404769e6-c79b.cloud.databricks.com
     variables:
-      catalog: ecommerce_catalog
-      schema: dev
-  prod:
+      catalog: ecommerce_catalog_dev
+  ecommerce_catalog_uat:
     mode: production
     workspace:
       host: https://dbc-404769e6-c79b.cloud.databricks.com
       # We explicitly deploy to /Workspace/Users/bittuchudhare9118@gmail.com to make sure we only have a single copy.
       root_path: /Workspace/Users/bittuchudhare9118@gmail.com/.bundle/${bundle.name}/${bundle.target}
     variables:
-      catalog: ecommerce_catalog
-      schema: prod
+      catalog: ecommerce_catalog_uat
+    permissions:
+      - user_name: bittuchudhare9118@gmail.com
+        level: CAN_MANAGE
+  ecommerce_catalog_prod:
+    mode: production
+    workspace:
+      host: https://dbc-404769e6-c79b.cloud.databricks.com
+      # We explicitly deploy to /Workspace/Users/bittuchudhare9118@gmail.com to make sure we only have a single copy.
+      root_path: /Workspace/Users/bittuchudhare9118@gmail.com/.bundle/${bundle.name}/${bundle.target}
+    variables:
+      catalog: ecommerce_catalog_prod
     permissions:
       - user_name: bittuchudhare9118@gmail.com
         level: CAN_MANAGE

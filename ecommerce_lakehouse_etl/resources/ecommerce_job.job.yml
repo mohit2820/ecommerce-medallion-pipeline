@@ -1,0 +1,61 @@
+resources:
+  jobs:
+    ecommerce_job:
+      name: Ecommerce_job
+      tasks:
+        - task_key: ecommerce_bronze_include
+          disabled: false
+          email_notifications: {}
+          notebook_task:
+            notebook_path: ../src/ecommerce_job/bronze/include.ipynb
+            source: WORKSPACE
+          run_if: ALL_SUCCESS
+          timeout_seconds: 0
+          webhook_notifications: {}
+        - task_key: ecommerce_bronze_ingestion
+          depends_on:
+            - task_key: ecommerce_bronze_include
+          disabled: false
+          email_notifications: {}
+          notebook_task:
+            notebook_path: ../src/ecommerce_job/bronze/ingestion.ipynb
+            source: WORKSPACE
+          run_if: ALL_SUCCESS
+          timeout_seconds: 0
+          webhook_notifications: {}
+        - task_key: ecommerce_silver_cleaning
+          depends_on:
+            - task_key: ecommerce_bronze_ingestion
+          disabled: false
+          email_notifications: {}
+          notebook_task:
+            notebook_path: ../src/ecommerce_job/silver/silver_cleaning.ipynb
+            source: WORKSPACE
+          run_if: ALL_SUCCESS
+          timeout_seconds: 0
+          webhook_notifications: {}
+        - task_key: ecommerce_gold
+          depends_on:
+            - task_key: ecommerce_silver_cleaning
+          disabled: false
+          email_notifications: {}
+          notebook_task:
+            notebook_path: ../src/ecommerce_job/gold/gold_kpis.ipynb
+            source: WORKSPACE
+          run_if: ALL_SUCCESS
+          timeout_seconds: 0
+      parameters:
+        - name: catalog
+          default: ${var.catalog}
+      email_notifications:
+        no_alert_for_skipped_runs: false
+      max_concurrent_runs: 1
+      performance_target: PERFORMANCE_OPTIMIZED
+      queue:
+        enabled: true
+      timeout_seconds: 0
+      # trigger:
+      #   file_arrival:
+      #     url: /Volumes/${var.catalog}/bronze/raw_data_volume/ecommerce_transactions/
+      #   pause_status: UNPAUSED
+      webhook_notifications: {}
