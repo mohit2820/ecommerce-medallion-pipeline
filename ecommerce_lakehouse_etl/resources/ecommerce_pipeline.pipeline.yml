@@ -1,0 +1,14 @@
+resources:
+  pipelines:
+    ecommerce_dlt_pipeline:
+      name: "ecommerce_dlt_pipeline_${bundle.environment}"
+      catalog: "${var.catalog}"
+      target: "bronze"
+      serverless: true  # <--- Enables Serverless DLT Compute
+      libraries:
+        - file:
+            path: "../src/dlt_pipeline.py"
+      configuration:
+        catalog: "${var.catalog}"
+      continuous: false
+      development: true
